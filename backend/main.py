@@ -1,6 +1,8 @@
 from fastapi import FastAPI
+import json
 
 from RADIUS import RADIUS
+from config import settings as s
 
 app = FastAPI()
 
@@ -9,16 +11,22 @@ app = FastAPI()
 async def root():
     return {"message": "Hello World"}
 
-radius_host = '10.1.2.3'
-radius_secret = 'r4d!us_$3cr3t'
-radius_nas_ip = '10.3.2.1'
-radius_nas_id = 'mynas'
-username = 'myuser'
-password = 'mypassword!'
+@app.get("/test")
+async def root():
+    configFile = {
+        "RADIUS_HOST": s.RADIUS_HOST,
+        "RADIUS_SECRET": s.RADIUS_SECRET,
+        "RADIUS_NAS_IP": s.RADIUS_NAS_IP,
+        "RADIUS_NAS_ID": s.RADIUS_NAS_ID,
+        "USERNAME": s.USERNAME,
+        "PASSWORD": s.PASSWORD
+    }
+
+    return {"message": json.dumps(configFile)}
 
 @app.get("/radius")
 async def root():
-    r = RADIUS(radius_host, radius_secret, radius_nas_ip, radius_nas_id)
+    r = RADIUS(s.RADIUS_HOST, s.RADIUS_SECRET, s.RADIUS_NAS_IP, s.RADIUS_NAS_ID)
     return {
-        "message": r.is_credential_valid(username, password)
+        "message": r.is_credential_valid(s.USERNAME, s.PASSWORD)
     }
