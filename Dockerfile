@@ -1,15 +1,15 @@
-FROM node:12
-
+# Build frontend
+FROM node:16-alpine3.11 AS frontend
 WORKDIR /app
+ADD ./frontend/ /app/
+RUN npm install --production
+RUN npm run build
 
-COPY package.json ./
+# Build backend
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8 AS backend
+WORKDIR /app
+ADD ./backend/ /app/
 
-RUN npm install
+RUN pip install -r requirements.txt
 
-COPY . .
-
-ENV PORT=5000
-
-EXPOSE 5000
-
-CMD [ "npm", "run", "dev" ]
+ENV APP_MODULE="main:app"
